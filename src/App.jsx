@@ -1,74 +1,122 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-
+import mockData from "./MOCK_DATA.json";
 function App() {
-   const [countries, setCountries] = useState([]);
-   const [word, setWord] = useState("");
+   const [search, setSearch] = useState("");
 
-   // สร้าง state มาเพื่อกรองหาชื่อประเทศกับเมืองหลวง
-   const [dataFilter] = useState(["name", "capital"]);
-
-   // เรียกข้อมูลจาก API
-   useEffect(() => {
-      fetch("https://restcountries.com/v3.1/all")
-         .then((res) => res.json())
-         .then((data) => {
-            console.log(data);
-            setCountries(data);
-         });
-   }, []);
-
-   //ฟังก์ชั่นแปลงรูปแบบตัวเลขเป็นมี comma เช่น 1200 => 1,200
-   const formatNumber = (num) => {
-      return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-   };
-
-   const searchCountries = (countries) => {
-      return countries.filter((item) => {
+   // สร้าง state มาเพื่อกรองหาชื่อจริง นามสกุล ประเทศ​ อีเมล เพศ
+   const [dataFilter] = useState(["first_name", "last_name", "country", "email", "gender"]);
+   // search filter
+   const searchCountries = (data) => {
+      return data.filter((item) => {
          return dataFilter.some((filter) => {
-            if (item[filter]) {
-               if (filter === "name") {
-                  return item[filter].common.toString().toLowerCase().indexOf(word.toLowerCase()) > -1;
-               } else {
-                  return item[filter].toString().toLowerCase().indexOf(word.toLowerCase()) > -1;
-               }
-            }
+            return item[filter].toString().toLowerCase().indexOf(search.toLowerCase()) > -1;
          });
       });
    };
+
+   const clearFilter = () => {
+      setSearch("");
+      // setFilterCountry("");
+      // setFilterGender("");
+   };
+
+   // button filter
+   const btnFilter = (e) => {
+      let btnWord = e.target.value;
+      if (btnWord !== "Male") {
+         setSearch(search(btnWord));
+      }
+   };
+
    return (
       <div className="container">
          <div className="search-container">
-            <label htmlFor="search-form">
-               <input
-                  type="text"
-                  className="search-input"
-                  placeholder="ค้นหาข้อมูลประเทศ (เช่น Bangkok, Thailand)"
-                  value={word}
-                  onChange={(e) => setWord(e.target.value)}
-               />
-            </label>
+            <h2 className="title">Test</h2>
+            <div className="menu-bar">
+               <button className="button-filter" onClick={btnFilter}>
+                  Male
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Female
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Bigender
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Non-birany
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Agender
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Polygender
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Genderfluid
+               </button>
+            </div>
+            <div className="menu-bar">
+               <button className="button-filter" onClick={btnFilter}>
+                  Genderqueer
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Brazil
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Thailand
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Sweden
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Japan
+               </button>
+               <button className="button-filter" onClick={btnFilter}>
+                  Netherlands
+               </button>
+            </div>
+
+            {/* search bar */}
+            <div>
+               <label htmlFor="search-form">
+                  <input
+                     type="text"
+                     className="search-input"
+                     placeholder="ค้นหาข้อมูล (เช่น Thailand, Donny, Male)"
+                     value={search}
+                     onChange={(e) => setSearch(e.target.value)}
+                  />
+               </label>
+               <button className="text-cyan-500 uppercase" onClick={clearFilter}>
+                  clear
+               </button>
+            </div>
          </div>
+
+         {/* show content */}
          <ul className="row">
-            {searchCountries(countries).map((item, index) => {
+            {searchCountries(mockData).map((item, index) => {
                return (
                   <li key={index}>
                      <div className="card">
                         <div className="card-title">
-                           <img src={item.flags.svg} alt={item.name.common} />
+                           <img src={item.image} alt="" />
                         </div>
                         <div className="card-body">
                            <div className="card-description">
-                              <h2>{item.name.common}</h2>
+                              <p>
+                                 {item.first_name} {item.last_name}
+                              </p>
                               <ol className="card-list">
                                  <li>
-                                    ประชากร : <span>{formatNumber(item.population)}</span>
+                                    <span>{item.gender}</span>
                                  </li>
                                  <li>
-                                    ภูมิภาค : <span>{item.region}</span>
+                                    <span>{item.email}</span>
                                  </li>
                                  <li>
-                                    เมืองหลวง : <span>{item.capital}</span>
+                                    <span>{item.country}</span>
                                  </li>
                               </ol>
                            </div>
